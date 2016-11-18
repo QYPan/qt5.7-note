@@ -17,14 +17,19 @@ TalkWin::TalkWin(const QString name, QWidget *parent)
 void TalkWin::init(){
     resize(400, 300);
     FormHelper::formNotResize(this);
+    //FormHelper::addMinimizeButtonHint(this);
     textReceive = new QTextEdit;
+    textReceive->setFocusPolicy(Qt::NoFocus);
     textReceive->setReadOnly(true);
 
     QLabel *msgLabel = new QLabel(tr("消息："));
     messageEdit = new QLineEdit;
+    messageEdit->setFocusPolicy(Qt::StrongFocus);
+    connect(messageEdit, &QLineEdit::returnPressed, this, &TalkWin::sendButtonClicked);
     msgLabel->setBuddy(messageEdit);
     QHBoxLayout *msgLayout = new QHBoxLayout;
     sendButton = new QPushButton(tr("发送"));
+    sendButton->setFocusPolicy(Qt::NoFocus);
     msgLayout->addWidget(msgLabel);
     msgLayout->addWidget(messageEdit);
     msgLayout->addWidget(sendButton);

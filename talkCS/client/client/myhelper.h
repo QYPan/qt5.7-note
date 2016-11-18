@@ -21,7 +21,10 @@ public:
     {
         frm->setFixedSize(frm->width(), frm->height());
     }
-
+    // 为窗体添加最小化选项
+    static void addMinimizeButtonHint(QWidget *frm){
+        frm->setWindowFlags(Qt::WindowMinimizeButtonHint); // 不是所有平台都使用
+    }
 };
 
 #endif // MYHELPER_H
