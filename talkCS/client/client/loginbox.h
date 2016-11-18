@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QString>
+#include <QByteArray>
 #include <QAbstractSocket>
 #include "frmmain.h"
 
@@ -18,6 +19,7 @@ public:
 private slots:
     void connectButtonClicked();
     void readData();
+    void sendData(QByteArray data);
     void readError(QAbstractSocket::SocketError);
 private:
     QTcpSocket *clientSocket;
@@ -32,6 +34,7 @@ private:
     void getFriendsList();
     void addFriendToList(const QString &data);
     void eraseFriendFromList(const QString &data);
+    QString getLocalHostIpAddress();
 };
 
 #endif // LOGINBOX_H

@@ -12,5 +12,4 @@ HEADERS += \
     frmmain.h \
     myhelper.h \
     mytcpserver.h \
-    clientmessage.h \
     mytcpsocket.h

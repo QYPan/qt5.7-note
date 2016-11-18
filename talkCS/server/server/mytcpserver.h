@@ -4,14 +4,12 @@
 #include <QTcpServer>
 #include <QMap>
 #include <QString>
-#include "clientmessage.h"
 #include "mytcpsocket.h"
 
 class MyTcpServer : public QTcpServer{
     Q_OBJECT
 public:
     explicit MyTcpServer(QObject *parent = 0);
-    //void sendData(ClientMsg msg, QByteArray data);
     void sendData(MyTcpSocket *socket, QByteArray data);
     void sendOfflineList(const QString &name);
     void sendClientList(MyTcpSocket *socket, const QString &name);

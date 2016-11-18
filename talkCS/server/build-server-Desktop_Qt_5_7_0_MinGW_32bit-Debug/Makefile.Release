@@ -60,7 +60,6 @@ OBJECTS       = release/main.o \
 DIST          =  ..\server\frmmain.h \
 		..\server\myhelper.h \
 		..\server\mytcpserver.h \
-		..\server\clientmessage.h \
 		..\server\mytcpsocket.h ..\server\main.cpp \
 		..\server\frmmain.cpp \
 		..\server\mytcpserver.cpp \
@@ -206,14 +205,13 @@ release/moc_frmmain.cpp: F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/QWidget
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qfiledevice.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtGui/qvector2d.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtGui/qtouchdevice.h \
+		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpserver.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpServer \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qtcpserver.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qabstractsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qhostaddress.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QMap \
-		../server/clientmessage.h \
-		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpSocket \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qtcpsocket.h \
@@ -287,7 +285,6 @@ release/moc_mytcpserver.cpp: F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTc
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qsharedpointer_impl.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qhostaddress.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QMap \
-		../server/clientmessage.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpSocket \
@@ -360,8 +357,6 @@ release/moc_mytcpsocket.cpp: F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTc
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qcontiguouscache.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qsharedpointer.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qsharedpointer_impl.h \
-		../server/clientmessage.h \
-		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/bin/moc.exe
 	F:\Qt5\install\5.7\mingw53_32\bin\moc.exe $(DEFINES) -D__GNUC__ -DWIN32 -IF:/Qt5/install/5.7/mingw53_32/mkspecs/win32-g++ -IG:/qt/qt5.7-note/talkCS/server/server -IF:/Qt5/install/5.7/mingw53_32/include -IF:/Qt5/install/5.7/mingw53_32/include/QtWidgets -IF:/Qt5/install/5.7/mingw53_32/include/QtGui -IF:/Qt5/install/5.7/mingw53_32/include/QtANGLE -IF:/Qt5/install/5.7/mingw53_32/include/QtNetwork -IF:/Qt5/install/5.7/mingw53_32/include/QtCore -I. -IF:/Qt5/install/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include -IF:/Qt5/install/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include-fixed -IF:/Qt5/install/Tools/mingw530_32/i686-w64-mingw32/include -IF:/Qt5/install/Tools/mingw530_32/i686-w64-mingw32/include/c++ -IF:/Qt5/install/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32 -IF:/Qt5/install/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward ..\server\mytcpsocket.h -o release\moc_mytcpsocket.cpp
@@ -480,14 +475,13 @@ release/main.o: ../server/main.cpp ../server/frmmain.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qfiledevice.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtGui/qvector2d.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtGui/qtouchdevice.h \
+		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpserver.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpServer \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qtcpserver.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qabstractsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qhostaddress.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QMap \
-		../server/clientmessage.h \
-		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpSocket \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qtcpsocket.h \
@@ -601,17 +595,19 @@ release/frmmain.o: ../server/frmmain.cpp ../server/frmmain.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qfiledevice.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtGui/qvector2d.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtGui/qtouchdevice.h \
+		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpserver.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpServer \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qtcpserver.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qabstractsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qhostaddress.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QMap \
-		../server/clientmessage.h \
-		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpSocket \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qtcpsocket.h \
+		../server/myhelper.h \
+		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QTextCodec \
+		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qtextcodec.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/QListWidget \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/qlistwidget.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/qlistview.h \
@@ -632,6 +628,9 @@ release/frmmain.o: ../server/frmmain.cpp ../server/frmmain.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/qtabbar.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/qtabwidget.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/qrubberband.h \
+		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QHostAddress \
+		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QHostInfo \
+		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qhostinfo.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/QPushButton \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/qpushbutton.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtWidgets/qabstractbutton.h \
@@ -721,7 +720,6 @@ release/mytcpserver.o: ../server/mytcpserver.cpp ../server/mytcpserver.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qsharedpointer_impl.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qhostaddress.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QMap \
-		../server/clientmessage.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		../server/mytcpsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QTcpSocket \
@@ -795,8 +793,6 @@ release/mytcpsocket.o: ../server/mytcpsocket.cpp ../server/mytcpsocket.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qcontiguouscache.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qsharedpointer.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/qsharedpointer_impl.h \
-		../server/clientmessage.h \
-		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QString \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/QHostAddress \
 		F:/Qt5/install/5.7/mingw53_32/include/QtNetwork/qhostaddress.h \
 		F:/Qt5/install/5.7/mingw53_32/include/QtCore/QDebug

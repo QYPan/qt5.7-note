@@ -47,6 +47,13 @@ void MyTcpServer::readData(MyTcpSocket *socket){
     else if(markType == QString("GET_FRIENDS_LIST_REQUEST")){ // 获取好友请求
         sendClientList(socket, data);
     }
+    else if(markType == QString("SEND_TO_FRIEND")){ // 转发请求
+        QString dataToFriend = buffer.split("#")[2]; // 信息内容
+        QString msg = tr("RECEIVE_FROM_FRIEND#%1#%2")
+                        .arg(mqSocketMap[socket]).arg(dataToFriend);
+        if(qmSocketMap.find(data) != qmSocketMap.end()) // 对方在线
+            qmSocketMap[data]->write(msg.toUtf8());
+    }
 }
 
 void MyTcpServer::sendClientList(MyTcpSocket *socket, const QString &name){

@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QListWidget>
 #include <QHBoxLayout>
+#include <QHostAddress>
+#include <QHostInfo>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QSPinBox>
@@ -36,10 +38,12 @@ void LoginBox::init(){
     nameLayout->addWidget(nameLabel);
     nameLayout->addWidget(nameEdit);
 
+    connect(nameEdit, &QLineEdit::returnPressed, this, &LoginBox::connectButtonClicked);
+
     // ---------------------------------------------------
     QLabel *ipLabel = new QLabel(tr("服务器 ip 地址："));
     ipEdit = new QLineEdit;
-    ipEdit->setText("172.18.121.11");
+    ipEdit->setText(getLocalHostIpAddress());
     ipLabel->setBuddy(ipEdit);
     QHBoxLayout *ipLayout = new QHBoxLayout;
     ipLayout->addWidget(ipLabel);
@@ -69,6 +73,21 @@ void LoginBox::init(){
     setLayout(mainLayout);
 }
 
+QString LoginBox::getLocalHostIpAddress(){
+    QString ip;
+    QString localHostName = QHostInfo::localHostName();
+    QHostInfo info = QHostInfo::fromName(localHostName);
+    foreach(QHostAddress address, info.addresses()){
+        if(address.protocol() == QAbstractSocket::IPv4Protocol){
+            ip = address.toString();
+            break;
+        }
+    }
+    if(ip.isEmpty())
+        ip = QHostAddress(QHostAddress::LocalHost).toString();
+    return ip;
+}
+
 void LoginBox::readError(QAbstractSocket::SocketError){
     clientSocket->disconnectFromHost();
     connectButton->setText("连接");
@@ -94,8 +113,8 @@ void LoginBox::addFriendToList(const QString &data){
 
 void LoginBox::readData(){
     QString buffer = clientSocket->readAll().data();
-    QString markType = buffer.split("#")[0]; // 标志
-    QString data = buffer.split("#")[1]; // 内容
+    QString markType = buffer.split('#')[0]; // 标志
+    QString data = buffer.split('#')[1]; // 内容
     if(markType == QString("LOGIN_FAILURE")){
         QMessageBox msg(this);
         msg.setText(tr("%1 已存在！").arg(data));
@@ -107,6 +126,7 @@ void LoginBox::readData(){
         userName = data;
         fm = new FrmMain(data);
         getFriendsList();
+        connect(fm, &FrmMain::sendMessageToFriend, this, &LoginBox::sendData);
         fm->show(); // 打开用户窗口
         this->close();
     }
@@ -116,12 +136,21 @@ void LoginBox::readData(){
     else if(markType == QString("OFFLINE_REQUEST")){
         eraseFriendFromList(data);
     }
+    else if(markType == QString("RECEIVE_FROM_FRIEND")){
+        QString message = buffer.split('#')[2];
+        fm->receiveFromFriend(data, message);
+    }
+}
+
+void LoginBox::sendData(QByteArray data){
+    clientSocket->write(data);
 }
 
 void LoginBox::eraseFriendFromList(const QString &name){
     QList<QListWidgetItem *> nameList =
             fm->friendLists->findItems(name, Qt::MatchStartsWith);
     fm->friendLists->takeItem(fm->friendLists->row(nameList.first()));
+    fm->tryDeleteTalkWin(name);
 }
 
 void LoginBox::sendLoginMessage(){
@@ -147,7 +176,6 @@ void LoginBox::connectButtonClicked(){
         }
         else{ // 无法连接服务器，手动断开
             clientSocket->disconnectFromHost();
-            clientSocket->abort();
             connectButton->setText("连接");
             connectButton->setEnabled(true);
             QMessageBox msg(this);
