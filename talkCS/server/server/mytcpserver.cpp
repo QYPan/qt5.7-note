@@ -19,14 +19,14 @@ incomingConnection(int handle){
             this, &MyTcpServer::disConnect);
 }
 
-void MyTcpServer::insertToMap(QString data, int id){
-    siSocketMap.insert(data, id);
-    isSocketMap.insert(id, data);
+void MyTcpServer::insertToMap(QString data, MyTcpSocket *socket){
+    qmSocketMap.insert(data, socket);
+    mqSocketMap.insert(socket, data);
 }
 
-void MyTcpServer::eraseFromMap(QString data, int id){
-    siSocketMap.erase(siSocketMap.find(data));
-    isSocketMap.erase(isSocketMap.find(id));
+void MyTcpServer::eraseFromMap(QString data, MyTcpSocket *socket){
+    qmSocketMap.erase(qmSocketMap.find(data));
+    mqSocketMap.erase(mqSocketMap.find(socket));
 }
 
 void MyTcpServer::readData(MyTcpSocket *socket){
@@ -34,9 +34,9 @@ void MyTcpServer::readData(MyTcpSocket *socket){
     QString markType = buffer.split("#")[0]; // 信息标志
     QString data = buffer.split("#")[1]; // 信息内容
     if(markType == QString("LOGIN_REQUEST")){ // 登录请求
-        QMap<QString, int>::const_iterator it = siSocketMap.find(data);
-        if(it == siSocketMap.end()){ // 请求合理
-            insertToMap(data, socket->getClientID());
+        QMap<QString, MyTcpSocket *>::const_iterator it = qmSocketMap.find(data);
+        if(it == qmSocketMap.end()){ // 请求合理
+            insertToMap(data, socket);
             emit clientConnect(data);
             socket->write(tr("LOGIN_SUCCESS#%1").arg(data).toUtf8());
         }
@@ -45,29 +45,43 @@ void MyTcpServer::readData(MyTcpSocket *socket){
         }
     }
     else if(markType == QString("GET_FRIENDS_LIST_REQUEST")){ // 获取好友请求
-        sendClientList(socket);
+        sendClientList(socket, data);
     }
 }
 
-void MyTcpServer::sendClientList(MyTcpSocket *socket){
+void MyTcpServer::sendClientList(MyTcpSocket *socket, const QString &name){
     QString data = "";
-    QMap<QString, int>::const_iterator it;
-    for(it = siSocketMap.begin(); it != siSocketMap.end(); it++){
+    QMap<QString, MyTcpSocket *>::const_iterator it;
+    for(it = qmSocketMap.begin(); it != qmSocketMap.end(); it++){
+        if(it.key() != name){
+            QString msg = "GET_FRIENDS_LIST_SUCCESS#";
+            msg.append(name);
+            it.value()->write(msg.toUtf8()); // 向其他已在线用户发送新用户信息
+        }
         data.append(it.key());
         data.append(QString(":"));
     }
-    QString buffer("GET_FRIENDS_LIST_SUCCESS#");
+    QString buffer = "GET_FRIENDS_LIST_SUCCESS#";
     buffer.append(data);
-    socket->write(buffer.toUtf8());
+    socket->write(buffer.toUtf8()); // 把所有在线用户写回给发出请求的用户
+}
+
+void MyTcpServer::sendOfflineList(const QString &name){
+    QMap<QString, MyTcpSocket *>::const_iterator it;
+    for(it = qmSocketMap.begin(); it != qmSocketMap.end(); it++){
+        QString msg = "OFFLINE_REQUEST#";
+        msg.append(name);
+        it.value()->write(msg.toUtf8()); // 向其他已在线用户发送下线用户信息
+    }
 }
 
 void MyTcpServer::disConnect(MyTcpSocket *socket){
-    int id = socket->getClientID();
-    QMap<int, QString>::const_iterator it = isSocketMap.find(id);
-    if(it != isSocketMap.end()){ // 如果用户已经登录
-        QString data = isSocketMap[id];
-        emit clientDisConnect(data);
-        eraseFromMap(data, id);
+    QMap<MyTcpSocket *, QString>::const_iterator it = mqSocketMap.find(socket);
+    if(it != mqSocketMap.end()){ // 如果用户已经登录
+        QString name = mqSocketMap[socket];
+        emit clientDisConnect(name);
+        eraseFromMap(name, socket);
+        sendOfflineList(name);
     }
 }
 

@@ -13,13 +13,14 @@ public:
     explicit MyTcpServer(QObject *parent = 0);
     //void sendData(ClientMsg msg, QByteArray data);
     void sendData(MyTcpSocket *socket, QByteArray data);
-    void sendClientList(MyTcpSocket *socket);
-    void insertToMap(QString, int);
-    void eraseFromMap(QString, int);
+    void sendOfflineList(const QString &name);
+    void sendClientList(MyTcpSocket *socket, const QString &name);
+    void insertToMap(QString, MyTcpSocket *);
+    void eraseFromMap(QString, MyTcpSocket *);
 protected:
     void incomingConnection(int handle);
-    QMap<QString, int> siSocketMap;
-    QMap<int, QString> isSocketMap;
+    QMap<QString, MyTcpSocket *> qmSocketMap;
+    QMap<MyTcpSocket *, QString> mqSocketMap;
 signals:
     void clientReadData(MyTcpSocket *socket);
     void clientConnect(QString name);

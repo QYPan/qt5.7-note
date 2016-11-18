@@ -113,6 +113,15 @@ void LoginBox::readData(){
     else if(markType == QString("GET_FRIENDS_LIST_SUCCESS")){
         addFriendToList(data);
     }
+    else if(markType == QString("OFFLINE_REQUEST")){
+        eraseFriendFromList(data);
+    }
+}
+
+void LoginBox::eraseFriendFromList(const QString &name){
+    QList<QListWidgetItem *> nameList =
+            fm->friendLists->findItems(name, Qt::MatchStartsWith);
+    fm->friendLists->takeItem(fm->friendLists->row(nameList.first()));
 }
 
 void LoginBox::sendLoginMessage(){

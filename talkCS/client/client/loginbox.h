@@ -31,6 +31,7 @@ private:
     void sendLoginMessage();
     void getFriendsList();
     void addFriendToList(const QString &data);
+    void eraseFriendFromList(const QString &data);
 };
 
 #endif // LOGINBOX_H
