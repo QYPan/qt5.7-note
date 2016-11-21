@@ -3,13 +3,14 @@
 #include <QLineEdit>
 #include <QCloseEvent>
 #include <QTextEdit>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
 
-TalkWin::TalkWin(const QString name, QWidget *parent)
-: QDialog(parent), friendName(name)
+TalkWin::TalkWin(const QString _user, const QString _friend, QWidget *parent)
+: QDialog(parent), userName(_user), friendName(_friend)
 {
     this->init();
 }
@@ -17,10 +18,17 @@ TalkWin::TalkWin(const QString name, QWidget *parent)
 void TalkWin::init(){
     resize(400, 300);
     FormHelper::formNotResize(this);
+    FormHelper::setWinBackground(this, QPixmap(":/images/talkbackground"));
     //FormHelper::addMinimizeButtonHint(this);
+
+    QGroupBox *textBox = new QGroupBox(tr("%1 与 %2 的聊天窗口")
+                                       .arg(userName).arg(friendName));
+    QVBoxLayout *textLayout = new QVBoxLayout;
     textReceive = new QTextEdit;
     textReceive->setFocusPolicy(Qt::NoFocus);
     textReceive->setReadOnly(true);
+    textLayout->addWidget(textReceive);
+    textBox->setLayout(textLayout);
 
     QLabel *msgLabel = new QLabel(tr("消息："));
     messageEdit = new QLineEdit;
@@ -37,7 +45,7 @@ void TalkWin::init(){
     connect(sendButton, &QPushButton::clicked, this, &TalkWin::sendButtonClicked);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(textReceive);
+    mainLayout->addWidget(textBox);
     mainLayout->addLayout(msgLayout);
 
     setLayout(mainLayout);

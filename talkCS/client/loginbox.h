@@ -9,6 +9,7 @@
 
 class QLineEdit;
 class QSpinBox;
+class QGridLayout;
 class QPushButton;
 class QTcpSocket;
 
@@ -34,6 +35,7 @@ private:
     void getFriendsList();
     void addFriendToList(const QString &data);
     void eraseFriendFromList(const QString &data);
+    QGridLayout *addCenterLayout();
     QString getLocalHostIpAddress();
 };
 

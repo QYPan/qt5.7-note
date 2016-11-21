@@ -30,7 +30,7 @@ init(){
     QLabel *ipLabel = new QLabel(tr("ip 地址："));
     ipEdit = new QLineEdit;
     ipEdit->setText(getLocalHostIpAddress());
-    ipEdit->setReadOnly(true);
+    //ipEdit->setReadOnly(true);
     ipLabel->setBuddy(ipEdit);
     QHBoxLayout *ipLayout = new QHBoxLayout;
     ipLayout->addWidget(ipLabel);

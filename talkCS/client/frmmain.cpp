@@ -3,7 +3,9 @@
 #include <QTcpSocket>
 #include <QStringList>
 #include <QListWidget>
+#include <QGroupBox>
 #include <QBrush>
+#include <QPixmap>
 #include <QColor>
 #include <QListWidgetItem>
 #include <QTextEdit>
@@ -12,7 +14,7 @@
 #include <QDebug>
 
 FrmMain::FrmMain(QString name, QWidget *parent)
-: QWidget(parent), userName(name)
+: QWidget(parent), userName(name), onlineNumber(0)
 {
     this->init();
 }
@@ -21,15 +23,32 @@ void FrmMain::init(){
     resize(300, 500);
 
     FormHelper::formNotResize(this);
+    FormHelper::setWinBackground(this, QPixmap(":/images/listbackground"));
+
     friendLists = new QListWidget;
+    QHBoxLayout *listLayout = new QHBoxLayout;
+    listLayout->addWidget(friendLists);
+    mainBox = new QGroupBox(tr("在线用户 %1 人").arg(onlineNumber));
+    mainBox->setLayout(listLayout);
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(friendLists);
+    mainLayout->addWidget(mainBox);
 
     connect(friendLists, &QListWidget::itemDoubleClicked,
             this, &FrmMain::judgeState);
 
     setLayout(mainLayout);
     setWindowTitle(userName);
+}
+
+void FrmMain::onlineJudge(bool flag){
+    if(flag){
+        onlineNumber += 1;
+        mainBox->setTitle(tr("在线用户 %1 人").arg(onlineNumber));
+    }
+    else{
+        onlineNumber -= 1;
+        mainBox->setTitle(tr("在线用户 %1 人").arg(onlineNumber));
+    }
 }
 
 void FrmMain::emitSendSignal(QByteArray data){
@@ -102,8 +121,8 @@ void FrmMain::tryDeleteTalkWin(const QString &name){
     afterTalkWinClosed(name);
 }
 
-TalkWin *FrmMain::createTalkWin(const QString &name){
-    TalkWin *talkWin = new TalkWin(name, this);
+TalkWin *FrmMain::createTalkWin(const QString &friendName){
+    TalkWin *talkWin = new TalkWin(userName, friendName, this);
     connect(talkWin, &TalkWin::sendData, this, &FrmMain::emitSendSignal);
     connect(talkWin, &TalkWin::readyToClose, this, &FrmMain::afterTalkWinClosed);
     talkWin->show();

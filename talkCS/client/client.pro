@@ -12,3 +12,6 @@ HEADERS += \
     loginbox.h \
     myhelper.h \
     talkwin.h
+
+RESOURCES += \
+    client.qrc

@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QListWidget>
 #include <QHBoxLayout>
+#include <QFont>
+#include <QGridLayout>
 #include <QHostAddress>
 #include <QHostInfo>
 #include <QPushButton>
@@ -21,18 +23,45 @@ LoginBox::LoginBox(QWidget *parent)
 void LoginBox::init(){
     resize(300, 200);
     FormHelper::formNotResize(this);
+    FormHelper::setWinBackground(this, QPixmap(":/images/loginbackground"));
 
     clientSocket = new QTcpSocket(this);
     clientSocket->abort();
     connect(clientSocket, &QTcpSocket::readyRead, this, &LoginBox::readData);
+    connect(clientSocket, &QTcpSocket::readyRead, this, &LoginBox::readData);
     // 无法连接服务器时没有触发 QAbstractSocket::error() 信号，尚不清楚原因，Linux 下可以正常触发
+#if 1
     typedef void (QAbstractSocket::*QAbstractSocketErrorSignal)(QAbstractSocket::SocketError);
     connect(clientSocket, static_cast<QAbstractSocketErrorSignal>(&QAbstractSocket::error),
             this, &LoginBox::readError);
+#endif
+
+    QLabel *loginLabel = new QLabel(tr("登录"));
+    QFont ft;
+    ft.setPointSize(25);
+    loginLabel->setFont(ft);
+
+    QGridLayout *centerLayout = addCenterLayout();
 
     // ---------------------------------------------------
-    QLabel *nameLabel = new QLabel(tr("姓名："));
+    connectButton = new QPushButton(tr("连接"));
+    connect(connectButton, &QPushButton::clicked, this, &LoginBox::connectButtonClicked);
+
+    // ---------------------------------------------------
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    //mainLayout->addSpacing(40);
+    mainLayout->addWidget(loginLabel, 0, Qt::AlignHCenter);
+    mainLayout->addLayout(centerLayout);
+    mainLayout->addWidget(connectButton);
+
+    setLayout(mainLayout);
+}
+
+QGridLayout *LoginBox::addCenterLayout(){
+    // ---------------------------------------------------
+    QLabel *nameLabel = new QLabel(tr("姓        名："));
     nameEdit = new QLineEdit;
+    nameEdit->setMaxLength(15);
     nameLabel->setBuddy(nameEdit);
     QHBoxLayout *nameLayout = new QHBoxLayout;
     nameLayout->addWidget(nameLabel);
@@ -41,13 +70,10 @@ void LoginBox::init(){
     connect(nameEdit, &QLineEdit::returnPressed, this, &LoginBox::connectButtonClicked);
 
     // ---------------------------------------------------
-    QLabel *ipLabel = new QLabel(tr("服务器 ip 地址："));
+    QLabel *ipLabel = new QLabel(tr("服务器ip地址："));
     ipEdit = new QLineEdit;
     ipEdit->setText(getLocalHostIpAddress());
     ipLabel->setBuddy(ipEdit);
-    QHBoxLayout *ipLayout = new QHBoxLayout;
-    ipLayout->addWidget(ipLabel);
-    ipLayout->addWidget(ipEdit);
 
     // ---------------------------------------------------
     QLabel *portLabel = new QLabel(tr("服务器端口号："));
@@ -55,22 +81,17 @@ void LoginBox::init(){
     portBox->setRange(1001, 65534);
     portBox->setValue(60000);
     portLabel->setBuddy(portBox);
-    QHBoxLayout *portLayout = new QHBoxLayout;
-    portLayout->addWidget(portLabel);
-    portLayout->addWidget(portBox);
 
     // ---------------------------------------------------
-    connectButton = new QPushButton(tr("连接"));
-    connect(connectButton, &QPushButton::clicked, this, &LoginBox::connectButtonClicked);
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(nameLabel, 0, 0, Qt::AlignRight);
+    layout->addWidget(nameEdit, 0, 1);
+    layout->addWidget(ipLabel, 1, 0, Qt::AlignRight);
+    layout->addWidget(ipEdit, 1, 1);
+    layout->addWidget(portLabel, 2, 0, Qt::AlignRight);
+    layout->addWidget(portBox, 2, 1);
 
-    // ---------------------------------------------------
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(nameLayout);
-    mainLayout->addLayout(ipLayout);
-    mainLayout->addLayout(portLayout);
-    mainLayout->addWidget(connectButton);
-
-    setLayout(mainLayout);
+    return layout;
 }
 
 QString LoginBox::getLocalHostIpAddress(){
@@ -107,6 +128,7 @@ void LoginBox::addFriendToList(const QString &data){
         QString name = friendList.at(i);
         if(name != ""){
             fm->friendLists->addItem(name);
+            fm->onlineJudge(true);
         }
     }
 }
@@ -133,7 +155,7 @@ void LoginBox::readData(){
     else if(markType == QString("GET_FRIENDS_LIST_SUCCESS")){
         addFriendToList(data);
     }
-    else if(markType == QString("OFFLINE_REQUEST")){
+    else if(markType == QString("OFFLINE_REQUEST")){ // 有用户下线
         eraseFriendFromList(data);
     }
     else if(markType == QString("RECEIVE_FROM_FRIEND")){
@@ -151,6 +173,7 @@ void LoginBox::eraseFriendFromList(const QString &name){
             fm->friendLists->findItems(name, Qt::MatchStartsWith);
     fm->friendLists->takeItem(fm->friendLists->row(nameList.first()));
     fm->tryDeleteTalkWin(name);
+    fm->onlineJudge(false);
 }
 
 void LoginBox::sendLoginMessage(){

@@ -14,7 +14,7 @@ class QCLoseEvent;
 class TalkWin : public QDialog{
     Q_OBJECT
 public:
-    explicit TalkWin(const QString name, QWidget *parent = 0);
+    explicit TalkWin(const QString _user, const QString _friend, QWidget *parent = 0);
     QTextEdit *textReceive;
     void Destroy();
 protected:
@@ -25,6 +25,7 @@ signals:
 private slots:
     void sendButtonClicked();
 private:
+    QString userName;
     QString friendName;
     QLineEdit *messageEdit;
     QPushButton *sendButton;
