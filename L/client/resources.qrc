@@ -1,21 +1,21 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>LoginPage.qml</file>
-        <file>TextInputLine.qml</file>
-        <file>TypeButton.qml</file>
+        <file>content/ClientList.qml</file>
+        <file>content/ItemDelegate.qml</file>
+        <file>content/LoginPage.qml</file>
+        <file>content/MainTab.qml</file>
+        <file>content/TalkPage.qml</file>
+        <file>content/TextInputLine.qml</file>
+        <file>content/TypeButton.qml</file>
         <file>images/button_default.png</file>
         <file>images/button_pressed.png</file>
+        <file>images/LLogo.png</file>
         <file>images/navigation_next_item.png</file>
         <file>images/navigation_previous_item.png</file>
-        <file>images/tab_selected.png</file>
         <file>images/tabs_standard.png</file>
         <file>images/textinput.png</file>
         <file>images/toolbar.png</file>
-        <file>images/LLogo.png</file>
-        <file>MainTab.qml</file>
-        <file>ClientList.qml</file>
-        <file>ItemDelegate.qml</file>
-        <file>TalkPage.qml</file>
+        <file>images/messageBox.png</file>
     </qresource>
 </RCC>

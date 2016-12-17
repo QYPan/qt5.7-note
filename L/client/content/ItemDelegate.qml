@@ -9,7 +9,6 @@ Item {
 
     property alias text: textitem.text
     property alias numberText: messageNumber.text
-    property int number: 0
     signal clicked
 
     Rectangle {
@@ -28,14 +27,23 @@ Item {
         anchors.leftMargin: 50
     }
 
-    Text {
-        id: messageNumber
-        color: "red"
-        text: modelData
-        font.pixelSize: 30
+    Image {
+        id: messageBox
+        width: 50
+        height: 50
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: textitem.right
         anchors.leftMargin: 30
+        visible: messageNumber.text === "0" ? false : true
+        source: "../images/messageBox.png"
+        fillMode: Image.PreserveAspectFit
+        Text {
+            id: messageNumber
+            color: "black"
+            text: modelData
+            font.pixelSize: 35
+            anchors.centerIn: parent
+        }
     }
 
     Rectangle {
@@ -52,7 +60,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 20
         anchors.verticalCenter: parent.verticalCenter
-        source: "images/navigation_next_item.png"
+        source: "../images/navigation_next_item.png"
         fillMode: Image.PreserveAspectFit
     }
 

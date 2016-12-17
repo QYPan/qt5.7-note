@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     QQuickView viewer;
     QObject::connect(viewer.engine(), SIGNAL(quit()), &app, SLOT(quit()));
     viewer.setResizeMode(QQuickView::SizeRootObjectToView);
-    //viewer.rootContext()->setContextProperty("socket", new ClientSocket);
+    viewer.rootContext()->setContextProperty("socket", new ClientSocket);
     viewer.setSource(QUrl("qrc:///main.qml"));
     viewer.show();
 

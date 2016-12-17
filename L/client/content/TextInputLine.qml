@@ -8,22 +8,17 @@ TextField {
     font.pixelSize: 80
     style: TextFieldStyle {
         textColor: control.textColor
-        background: Rectangle {
+        background: Item {
             implicitHeight: control.height
             implicitWidth: control.width
-            color: "green"
-            border.width: 1
-            border.color: "red"
-            /*
             BorderImage {
-                source: "images/textinput.png"
+                source: "../images/textinput.png"
                 border.left: 8
                 border.right: 8
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
             }
-            */
         }
     }
 }

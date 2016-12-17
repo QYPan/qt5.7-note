@@ -2,66 +2,23 @@ import QtQuick 2.5
 import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
 import ClientSocket 1.0
+import "content"
 
 Item {
     id: root
     width: 500
     height: 700
+    /*
     ClientSocket {
         id: socket
     }
+    */
     LoginPage {
         id: loginPage
         anchors.fill: parent
-        onLoginButtonClicked: {
-            if(userName === ""){
-                dialogMessage.text = "请先输入用户名"
-                dialog.visible = true;
-            }else{
-                buttonText = "连 接 中..."
-                socket.connectSignal(userName);
-            }
-        }
-        Rectangle {
-            id: dialog
-            width: parent.width / 2
-            height: parent.height / 5
-            anchors.centerIn: parent
-            z: 20
-            visible: false
-            gradient: Gradient {
-                        GradientStop {position: 0.0; color: "#242424"}
-                        GradientStop {position: 1.0; color: "#969696"}
-            }
-            Item {
-                id: textBackground
-                width: parent.width
-                height: parent.height / 2
-                Text {
-                    id: dialogMessage
-                    anchors.centerIn: parent
-                }
-            }
-            Item {
-                width: parent.width
-                height: parent.height / 2
-                anchors.top: textBackground.bottom
-                TypeButton {
-                    id: dialogButton
-                    text: "确 定"
-                    width: parent.width * 0.7
-                    height: parent.height * 0.55
-                    anchors.centerIn: parent;
-                    onClicked: {
-                        dialog.visible = false;
-                        loginPage.buttonText = "登 录";
-                    }
-                }
-            }
-        }
     }
     StackView {
-        id: stackView
+        id: stackView // 实现翻页
         anchors.fill: parent
         // Implements back key navigation
         focus: true
@@ -69,38 +26,37 @@ Item {
                              stackView.pop();
                              event.accepted = true;
                          }
-        function manage(array){
-            var name = array[0];
-            var mark = parseInt(array[1]);
-            var message = array[2];
-            if(mark === ClientSocket.LOGIN_SUCCESSED){
-                loginPage.visible = false;
-                socket.clientName = name;
-                stackView.push(Qt.resolvedUrl("MainTab.qml"));
-                socket.getUsersSignal();
-            }else if(mark === ClientSocket.LOGIN_FAILURE){
-                dialog.visible = true;
-                dialogMessage.text = message;
-            }else if(mark === ClientSocket.ADD_SUCCESSED){
-                var users = message.split("#");
-                var i;
-                for(i = 0; i < users.length; i++){
-                    stackView.get(0).addUser(users[i]);
-                }
-            }else if(mark === ClientSocket.TRANSPOND_SUCCESSED){
-                console.log("get message from " + message);
-                var toName = message.split("#", 1)
-                var toMessage = message.substring(toName[0].length+1);
-                console.log("toName: " + toName[0]);
-                console.log("toMessage: " + toMessage);
-                stackView.get(0).receiveMessage(toName[0], toMessage);
-            }else if(mark === ClientSocket.OFFLINE){
-                stackView.get(0).removeUser(message);
-            }
-        }
-
     }
-    function splitData(data){ // 把 socket 收到的数据按分 3 份
+    function manage(array){
+        var name = array[0];
+        var mark = parseInt(array[1]);
+        var message = array[2];
+        if(mark === ClientSocket.LOGIN_SUCCESSED){
+            socket.clientName = name; // 把用户名记录在 socket 组件
+            loginPage.visible = false;
+            stackView.push(Qt.resolvedUrl("content/MainTab.qml"));
+            socket.getUsersSignal();
+        }else if(mark === ClientSocket.LOGIN_FAILURE){
+            loginPage.dialogVisible = true;
+            loginPage.dialogMessage = message;
+        }else if(mark === ClientSocket.ADD_SUCCESSED){
+            var users = message.split("#");
+            var i;
+            for(i = 0; i < users.length; i++){
+                stackView.get(0).addUser(users[i]);
+            }
+        }else if(mark === ClientSocket.TRANSPOND_SUCCESSED){
+            console.log("get message from " + message);
+            var toName = message.split("#", 1)
+            var toMessage = message.substring(toName[0].length+1);
+            console.log("toName: " + toName[0]);
+            console.log("toMessage: " + toMessage);
+            stackView.get(0).receiveMessage(toName[0], toMessage);
+        }else if(mark === ClientSocket.OFFLINE){
+            stackView.get(0).removeUser(message);
+        }
+    }
+    function splitData(data){
         var arr = new Array;
         var i;
         var beg = 0;
@@ -120,19 +76,11 @@ Item {
     }
     Connections {
         target: socket
-        onDisplayConnectError: {
-            dialogMessage.text = message;
-            dialog.visible = true;
-            loginPage.buttonText = "登 录"
-        }
-    }
-    Connections {
-        target: socket
         onReadDataSignal: {
             console.log("data: " + data);
-            var arr = splitData(data);
+            var arr = root.splitData(data); // 把 socket 收到的数据按分 3 份
             console.log("arr:" + arr);
-            stackView.manage(arr);
+            root.manage(arr); // 判断数据类型并转发给子组件
         }
     }
 }

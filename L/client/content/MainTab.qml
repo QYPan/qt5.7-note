@@ -20,9 +20,9 @@ Item {
     BorderImage {
         id: topView
         border.bottom: 8
-        source: "images/toolbar.png"
+        source: "../images/toolbar.png"
         width: parent.width
-        height: Screen.height * 0.09
+        height: Screen.height * 0.07
 
         Text {
             font.pixelSize: 100
@@ -41,7 +41,7 @@ Item {
         style: touchStyle
         tabPosition: Qt.BottomToolBarArea
         Tab {
-            title: "在线"
+            title: qsTr("在线")
             ClientList {
                 id: clientList
                 anchors.fill: parent
@@ -66,10 +66,10 @@ Item {
             }
         }
         Tab {
-            title: "游戏"
+            title: qsTr("游戏")
         }
         Tab {
-            title: "系统"
+            title: qsTr("系统")
         }
     }
 
@@ -86,7 +86,7 @@ Item {
                     anchors.fill: parent
                     border.bottom: 8
                     border.top: 8
-                    source: styleData.selected ? "images/tabs_standard.png":"images/tabs_standard.png"
+                    source: styleData.selected ? "../images/tabs_standard.png":"../images/tabs_standard.png"
                     Text {
                         anchors.centerIn: parent
                         color: styleData.selected ? "#0099ff" : "white"

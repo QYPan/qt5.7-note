@@ -10,9 +10,9 @@ Rectangle {
     BorderImage {
         id: topView
         border.bottom: 8
-        source: "images/toolbar.png"
+        source: "../images/toolbar.png"
         width: parent.width
-        height: Screen.height * 0.09
+        height: Screen.height * 0.07
 
         Rectangle {
             id: backButton
@@ -28,7 +28,7 @@ Rectangle {
             Behavior on opacity { NumberAnimation{} }
             Image {
                 anchors.fill: parent
-                source: "images/navigation_previous_item.png"
+                source: "../images/navigation_previous_item.png"
                 fillMode: Image.PreserveAspectFit
             }
             MouseArea {
@@ -55,29 +55,75 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: topView.bottom
         anchors.bottom: separationLine.top
-        anchors.margins: 4
+        anchors.margins: topView.height / 5
         clip: true
-        spacing: 20
+        spacing: topView.height * 0.3
         model: ListModel {}
         delegate: Item{
             id: perDelegate
+            property int edge: 2 * topView.height / 5
             width: parent.width
-            //height: 100
-            height: msg.height + 15 > manIcon.height ? msg.height + 15 : manIcon.height
-            property int limitLength: width - 2 * (48 + 20)
+            //height: 200
+            height: msg.height+edge > manIcon.height ? msg.height+edge : manIcon.height
+            property int limitLength: width - 2 * manIcon.width - 6 * edge
             Rectangle {
                 id: manIcon
                 x: who ? 0 : parent.width - manIcon.width
-                width: 48
-                height: 48
-                color: "blue"
+                width: topView.height * 0.8
+                height: width
+                color: who ? "red" : "blue"
+            }
+            Canvas {
+                id: triangleLeft
+                visible: who
+                x: manIcon.width
+                width: edge
+                height: manIcon.height
+                contextType: "2d"
+                onPaint: {
+                    context.lineWidth = 2;
+                    context.strokeStyle = "gray";
+                    context.fillStyle = "gray";
+                    var startX = width / 2;
+                    var startY = height / 2;
+                    context.beginPath();
+                    context.moveTo(startX, startY);
+                    context.lineTo(width, height/3);
+                    context.lineTo(width, 2*height/3);
+                    context.closePath();
+                    context.fill();
+                    context.stroke();
+                }
+            }
+            Canvas {
+                id: triangleRight
+                visible: who ? false : true
+                x: parent.width - manIcon.width - edge
+                width: edge
+                height: manIcon.height
+                contextType: "2d"
+                onPaint: {
+                    context.lineWidth = 2;
+                    context.strokeStyle = "gray";
+                    context.fillStyle = "gray";
+                    var startX = width / 2;
+                    var startY = height / 2;
+                    context.beginPath();
+                    context.moveTo(startX, startY);
+                    context.lineTo(0, height/3);
+                    context.lineTo(0, 2*height/3);
+                    context.closePath();
+                    context.fill();
+                    context.stroke();
+                }
             }
             Rectangle {
                 id: msgBackground
-                x: who ? manIcon.width + 20 : parent.width - manIcon.width - 20 - width
+                x: who ? manIcon.width+edge : parent.width-manIcon.width-edge-width
                 y: 0
-                width: msg.width + 15
-                height: msg.height + 15 > manIcon.height ? msg.height + 15 : manIcon.height
+                width: msg.width + 2 * edge
+                height: msg.height+edge > manIcon.height ? msg.height+edge : manIcon.height
+                radius: 6
                 color: "gray"
                 Text {
                     id: msg
@@ -85,7 +131,7 @@ Rectangle {
                     width: msgLength < perDelegate.limitLength? msgLength : perDelegate.limitLength
                     text: getMsg
                     wrapMode: Text.WrapAnywhere
-                    font.pixelSize: 40
+                    font.pixelSize: 50
                 }
             }
         }
@@ -125,6 +171,7 @@ Rectangle {
         TextInputLine {
             id: inputMessage
             width: parent.width
+            font.pixelSize: 50
             anchors.centerIn: parent
         }
     }
@@ -143,7 +190,7 @@ Rectangle {
     Text {
         id: msgDont
         visible: false
-        font.pixelSize: 40
+        font.pixelSize: 50
     }
     function appendMsg(msgStr, flag){
         msgDont.text = msgStr;
