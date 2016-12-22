@@ -9,6 +9,9 @@ Item {
 
     property alias text: textitem.text
     property alias numberText: messageNumber.text
+    property alias talkView: talkPage
+    property alias talkViewFlag: talkPage.flag
+    //property var talkView: null
     signal clicked
 
     Rectangle {
@@ -17,10 +20,16 @@ Item {
         visible: mouse.pressed
     }
 
+    TalkPage {
+        id: talkPage
+        visible: false
+        property bool flag: false
+    }
+
     Text {
         id: textitem
         color: "white"
-        font.pixelSize: 50
+        font.pixelSize: 55
         text: modelData
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left

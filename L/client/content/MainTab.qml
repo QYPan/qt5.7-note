@@ -11,10 +11,28 @@ Item {
     signal addUser(string name)
     signal removeUser(string name)
     signal receiveMessage(string name, string message)
+    signal directRemoveUser(int id)
+    property int flag: -1
 
     Rectangle {
         color: "#212126"
         anchors.fill: parent
+    }
+
+    TypeDialog {
+        id: disconnectDialog
+        visible: false
+        anchors.centerIn: parent
+        Connections {
+            target: qmlInterface
+            onDisplayError: {
+                disconnectDialog.dialogMessage = message;
+                disconnectDialog.visible = true;
+            }
+        }
+        onButtonClicked: {
+            disconnectDialog.visible = false;
+        }
     }
 
     BorderImage {
@@ -54,7 +72,7 @@ Item {
                 Connections {
                     target: root
                     onRemoveUser: {
-                        clientList.removeOne(name);
+                        flag = clientList.removeOne(name);
                     }
                 }
                 Connections {
@@ -63,13 +81,21 @@ Item {
                         clientList.receiveMessage(name, message);
                     }
                 }
+                Connections {
+                    target: root
+                    onDirectRemoveUser: {
+                        clientList.directRemove(id);
+                    }
+                }
             }
         }
         Tab {
             title: qsTr("游戏")
+            Games {}
         }
         Tab {
             title: qsTr("系统")
+            System {}
         }
     }
 
@@ -89,9 +115,9 @@ Item {
                     source: styleData.selected ? "../images/tabs_standard.png":"../images/tabs_standard.png"
                     Text {
                         anchors.centerIn: parent
-                        color: styleData.selected ? "#0099ff" : "white"
+                        color: styleData.selected ? "#3399ff" : "white"
                         text: styleData.title
-                        font.pixelSize: 40
+                        font.pixelSize: 45
                     }
                     Rectangle {
                         visible: index > 0

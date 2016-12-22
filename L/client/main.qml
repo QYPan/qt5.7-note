@@ -1,10 +1,12 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
-import ClientSocket 1.0
+import QmlInterface 1.0
 import "content"
 
-Item {
+ApplicationWindow {
+    objectName: "rootObject"
+    visible: true
     id: root
     width: 500
     height: 700
@@ -14,73 +16,71 @@ Item {
     }
     */
     LoginPage {
+        objectName: "loginPage"
         id: loginPage
         anchors.fill: parent
     }
+    property int removeFlag: -1
+
     StackView {
+        objectName: "stackObject"
         id: stackView // 实现翻页
         anchors.fill: parent
         // Implements back key navigation
         focus: true
-        Keys.onReleased: if (event.key === Qt.Key_Back && stackView.depth > 1) {
-                             stackView.pop();
-                             event.accepted = true;
+        /*
+        Keys.onReleased: if (event.key === Qt.Key_Back) {
+                             //stackView.pop();
+                             if(stackView.depth)
+                                 event.accepted = true;
                          }
+                         */
+        onBusyChanged: {
+            if(stackView.busy === false && removeFlag !== -1){
+                stackView.get(0).directRemoveUser(removeFlag);
+                removeFlag = -1;
+            }
+        }
     }
-    function manage(array){
-        var name = array[0];
-        var mark = parseInt(array[1]);
-        var message = array[2];
-        if(mark === ClientSocket.LOGIN_SUCCESSED){
-            socket.clientName = name; // 把用户名记录在 socket 组件
+    function manage(mark, message){
+        if(mark === QmlInterface.LOGIN_SUCCESSED){
             loginPage.visible = false;
             stackView.push(Qt.resolvedUrl("content/MainTab.qml"));
-            socket.getUsersSignal();
-        }else if(mark === ClientSocket.LOGIN_FAILURE){
+            qmlInterface.qmlSendData(QmlInterface.ADD_ALL, "");
+        }else if(mark === QmlInterface.LOGIN_FAILURE){
             loginPage.dialogVisible = true;
             loginPage.dialogMessage = message;
-        }else if(mark === ClientSocket.ADD_SUCCESSED){
+        }else if(mark === QmlInterface.ADD_SUCCESSED){
             var users = message.split("#");
             var i;
             for(i = 0; i < users.length; i++){
                 stackView.get(0).addUser(users[i]);
             }
-        }else if(mark === ClientSocket.TRANSPOND_SUCCESSED){
+        }else if(mark === QmlInterface.TRANSPOND_SUCCESSED){
             console.log("get message from " + message);
             var toName = message.split("#", 1)
             var toMessage = message.substring(toName[0].length+1);
             console.log("toName: " + toName[0]);
             console.log("toMessage: " + toMessage);
             stackView.get(0).receiveMessage(toName[0], toMessage);
-        }else if(mark === ClientSocket.OFFLINE){
+        }else if(mark === QmlInterface.OFFLINE){
             stackView.get(0).removeUser(message);
+            removeFlag = stackView.get(0).flag;
         }
-    }
-    function splitData(data){
-        var arr = new Array;
-        var i;
-        var beg = 0;
-        var count = 0;
-        for(i = 0; i < data.length; i++){
-            if(data[i] === "#"){
-                arr[count] = data.substring(beg, i);
-                count++;
-                beg = i + 1;
-                if(count === 2)
-                    break;
-            }
-        }
-        if(beg === data.length) arr[count] = "";
-        else arr[count] = data.substring(beg);
-        return arr;
     }
     Connections {
-        target: socket
-        onReadDataSignal: {
-            console.log("data: " + data);
-            var arr = root.splitData(data); // 把 socket 收到的数据按分 3 份
-            console.log("arr:" + arr);
-            root.manage(arr); // 判断数据类型并转发给子组件
+        target: backKeyFilter
+        onTouchBackKey: {
+            if(stackView.depth === 0)
+                Qt.quit();
+            console.log("back in qml");
+        }
+    }
+
+    Connections {
+        target: qmlInterface
+        onQmlReadData: {
+            manage(type, message);
         }
     }
 }

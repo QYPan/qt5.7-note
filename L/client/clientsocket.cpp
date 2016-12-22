@@ -1,87 +1,79 @@
 #include "clientsocket.h"
 #include <QHostAddress>
-#include <QHostInfo>
-#include <QVBoxLayout>
+#include <QAbstractSocket>
 #include <QDebug>
+#include <QThread>
+#include <QMetaType>
 
 ClientSocket::ClientSocket(QObject *parent)
-    : QObject(parent)
+    : QTcpSocket(parent)
 {
-    this->init();
+    qRegisterMetaType<DataStruct>("DataStruct");
+    connect(this, &ClientSocket::readyRead, this, &ClientSocket::onReadyRead);
+    connect(this, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(onError()));
+    //connect(this, &ClientSocket::disconnected, this, &ClientSocket::deleteLater);
 }
 
-
-QString ClientSocket::clientName() const{
-    return m_clientName;
+void ClientSocket::sendData(const DataStruct &data){
+    qDebug() << data.name << "send data";
+    merge(data);
 }
 
-void ClientSocket::setClientName(const QString &newName){
-    m_clientName = newName;
+void ClientSocket::onError(){
+    emit getError(error(), errorString());
 }
 
-void ClientSocket::sendDataSlot(const QString &message){
-    QString buffer = m_clientName + "#" + QString(QChar(TRANSPOND+'0')) + "#" + message;
-    tcpSocket.write(buffer.toUtf8());
+void ClientSocket::onReadyRead(){
+    //qDebug() << "socket thread id: " << QThread::currentThreadId();
+    QString buffer = readAll().data();
+    resolve(buffer);
 }
 
-void ClientSocket::getUsersSlot(){
+void splitString(const QString &str, int k, QString &sub){
+    int count = 0;
+    int beg = 0;
+    for(int i= 0; i < str.size(); i++){
+        if(str[i] == '#' || i == str.size()-1){
+            if(count == k){
+                sub = str.mid(beg, i-beg);
+                return;
+            }
+            else{
+                beg = i + 1;
+                count++;
+                if(count == 2)
+                    break;
+            }
+        }
+    }
+    if(beg == str.size()) sub = "";
+    else sub = str.mid(beg);
+}
+
+// 合并数据并且发出去
+void ClientSocket::merge(const DataStruct &data){
+    QString name = data.name;
+    QString mark = QString(QChar(data.mark+'0'));
+    QString message = data.message;
+    QString all = name + "#" + mark + "#" + message;
+    write(all.toUtf8());
+}
+
+// 分解数据并且发给主线程
+void ClientSocket::resolve(const QString &buffer){
     DataStruct data;
-    data.name = m_clientName;
-    data.mark = ADD_ALL;
-    qDebug() << data.mark;
-    QString buffer = data.name + "#" + QString(QChar(data.mark+'0')) + "#" + data.message;
-    tcpSocket.write(buffer.toUtf8());
-}
-
-void ClientSocket::init(){
-    tcpSocket.abort();
-    connect(&tcpSocket, &QTcpSocket::readyRead, this, &ClientSocket::readDataSlot);
-    connect(this, &ClientSocket::connectSignal, this, &ClientSocket::connectButtonClicked);
-    connect(this, &ClientSocket::getUsersSignal, this, &ClientSocket::getUsersSlot);
-    connect(this, &ClientSocket::sendDataSignal, this, &ClientSocket::sendDataSlot);
-}
-
-QString ClientSocket::getLocalHostIpAddress(){
-    QString ip;
-    QString localHostName = QHostInfo::localHostName();
-    QHostInfo info = QHostInfo::fromName(localHostName);
-    foreach(QHostAddress address, info.addresses()){
-        if(address.protocol() == QAbstractSocket::IPv4Protocol){
-            ip = address.toString();
-            break;
-        }
-    }
-    if(ip.isEmpty())
-        ip = QHostAddress(QHostAddress::LocalHost).toString();
-    return ip;
-}
-
-void ClientSocket::readDataSlot(){
-    QString buffer = tcpSocket.readAll();
-    emit readDataSignal(buffer);
-}
-
-void ClientSocket::sendLoginMessage(const QString &name){
-    DataStruct data;
-    data.name = name;
-    data.mark = LOGIN;
-    QString buffer = data.name + "#" + QString(QChar(data.mark+'0')) + "#" + data.message;
-    tcpSocket.write(buffer.toUtf8());
-}
-
-void ClientSocket::connectButtonClicked(const QString &name){
-    if(tcpSocket.state() == QAbstractSocket::UnconnectedState){ // 连接尚未建立
-        //tcpSocket.connectToHost(getLocalHostIpAddress(), 60000);
-        tcpSocket.connectToHost("192.168.191.1", 60000);
-        if(tcpSocket.waitForConnected(5000)){
-            sendLoginMessage(name);
-        }
-        else{ // 无法连接服务器，手动断开
-            tcpSocket.disconnectFromHost();
-            emit displayConnectError(tcpSocket.error(), tcpSocket.errorString());
-        }
-    }
-    else{
-        sendLoginMessage(name);
-    }
+    QString mark;
+    splitString(buffer, 0, data.name);
+    splitString(buffer, 1, mark);
+    splitString(buffer, 2, data.message);
+    //qDebug() << "buffer: " << buffer;
+    //qDebug() << "in socket name: " << data.name;
+    //qDebug() << "in socket mark: " << mark;
+    //qDebug() << "in socket mesa: " << data.message;
+    data.mark = mark.toInt();
+    data.ip = peerAddress().toString();
+    data.port = peerPort();
+    data.socket = this;
+    emit readData(data);
 }

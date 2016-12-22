@@ -5,8 +5,9 @@ import QtQuick.Window 2.0
 Rectangle {
     id: root
     property alias userName: title.text
+    property bool isTalkPage: true
     signal sendMessage(string msg)
-    color: "#4b4b4b"
+    color: "#212126"
     BorderImage {
         id: topView
         border.bottom: 8
@@ -35,7 +36,9 @@ Rectangle {
                 id: backmouse
                 anchors.fill: parent
                 //anchors.margins: -10
-                onClicked: stackView.pop()
+                onClicked:{
+                    stackView.pop();
+                }
             }
         }
 
@@ -65,13 +68,19 @@ Rectangle {
             width: parent.width
             //height: 200
             height: msg.height+edge > manIcon.height ? msg.height+edge : manIcon.height
-            property int limitLength: width - 2 * manIcon.width - 6 * edge
+            property int limitLength: width - 2 * manIcon.width - 3 * edge
             Rectangle {
                 id: manIcon
                 x: who ? 0 : parent.width - manIcon.width
                 width: topView.height * 0.8
                 height: width
-                color: who ? "red" : "blue"
+                color: "#212126"
+                Image {
+                    id: head
+                    anchors.fill: parent
+                    source: who ? "../images/headleft.png" : "../images/headright.png"
+                    fillMode: Image.PreserveAspectFit
+                }
             }
             Canvas {
                 id: triangleLeft
@@ -81,9 +90,9 @@ Rectangle {
                 height: manIcon.height
                 contextType: "2d"
                 onPaint: {
-                    context.lineWidth = 2;
-                    context.strokeStyle = "gray";
-                    context.fillStyle = "gray";
+                    context.lineWidth = 0;
+                    context.strokeStyle = "#c0c0c0";
+                    context.fillStyle = "#c0c0c0";
                     var startX = width / 2;
                     var startY = height / 2;
                     context.beginPath();
@@ -103,9 +112,9 @@ Rectangle {
                 height: manIcon.height
                 contextType: "2d"
                 onPaint: {
-                    context.lineWidth = 2;
-                    context.strokeStyle = "gray";
-                    context.fillStyle = "gray";
+                    context.lineWidth = 0;
+                    context.strokeStyle = "#808080";
+                    context.fillStyle = "#808080";
                     var startX = width / 2;
                     var startY = height / 2;
                     context.beginPath();
@@ -121,10 +130,10 @@ Rectangle {
                 id: msgBackground
                 x: who ? manIcon.width+edge : parent.width-manIcon.width-edge-width
                 y: 0
-                width: msg.width + 2 * edge
+                width: msg.width + edge
                 height: msg.height+edge > manIcon.height ? msg.height+edge : manIcon.height
                 radius: 6
-                color: "gray"
+                color: who ? "#c0c0c0" : "#808080"
                 Text {
                     id: msg
                     anchors.centerIn: parent
@@ -164,7 +173,7 @@ Rectangle {
     }
     Item {
         id: messageBackground
-        width: parent.width * 0.65
+        width: parent.width * 0.6
         height: parent.height * 0.09
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
@@ -177,14 +186,17 @@ Rectangle {
     }
     TypeButton {
         id: sendButton
-        width: parent.width * 0.17
-        height: messageBackground.height * 0.6
-        text: "发送"
-        anchors.left: messageBackground.right
+        width: parent.width * 0.15
+        height: messageBackground.height * 0.5
+        text: "发 送"
+        textSize: 45
+        anchors.right: separationLine.right
         anchors.verticalCenter: messageBackground.verticalCenter
         onClicked: {
-            root.appendMsg(inputMessage.text, 0);
-            inputMessage.remove(0, inputMessage.length);
+            if(inputMessage.length){
+                root.appendMsg(inputMessage.text, 0);
+                inputMessage.remove(0, inputMessage.length);
+            }
         }
     }
     Text {
