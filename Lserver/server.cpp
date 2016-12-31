@@ -33,6 +33,27 @@ bool Server::init(){
 	return true;
 }
 
+void Server::judgeFd(int fd){
+	if(fd == server_sockfd){ // 新连接
+		client_len = sizeof(client_address);
+		client_sockfd = accept(server_sockfd,
+				(struct sockaddr *)&client_address, (socklen_t *)&client_len);
+		FD_SET(client_sockfd, &readfds);
+		if(client_sockfd > max_fd) max_fd = client_sockfd;
+	}else{ // 肯定是客户请求
+		int nread;
+		ioctl(fd, FIONREAD, &nread); // 检查套接字缓存有无数据可读
+		if(nread == 0){
+			close(fd);
+			FD_CLR(fd, &readfds);
+		}else{
+			char data[2000];
+			read(fd, data, sizeof(data));
+			handle(fd, data, strlen(data));
+		}
+	}
+}
+
 bool Server::loop(){
 	while(true){
 		fd_set testfds = readfds; // select 调用会改变 readfds，故需用中间变量
@@ -45,25 +66,9 @@ bool Server::loop(){
 			return false;
 		}
 
-		for(int fd = 0; fd < max_fd; fd++){
+		for(int fd = 0; fd <= max_fd; fd++){
 			if(FD_ISSET(fd, &testfds)){
-				if(fd == server_sockfd){ // 新连接
-					client_len = sizeof(client_address);
-					client_sockfd = accept(server_sockfd,
-							(struct sockaddr *)&client_address, (socklen_t *)&client_len);
-					FD_SET(client_sockfd, &readfds);
-				}else{ // 肯定是客户请求
-					int nread;
-					ioctl(fd, FIONREAD, &nread); // 检查套接字缓存有无数据可读
-					if(nread == 0){
-						close(fd);
-						FD_CLR(fd, &readfds);
-					}else{
-						char data[2000];
-						read(fd, data, sizeof(data));
-						handle(data, strlen(data));
-					}
-				}
+				judgeFd(fd);
 			}
 		}
 	}
@@ -93,7 +98,7 @@ void Server::splitData(const char *data, int n, int k, char *sub){
 	else strcpy(sub, data+beg);
 }
 
-void Server::handle(const char *data, int n){
+void Server::handle(int fd, const char *data, int n){
 	char name[100];
 	char message[2000];
 	MessageType mark;
@@ -102,7 +107,13 @@ void Server::handle(const char *data, int n){
 	splitData(data, n, 1, tmp_mark);
 	splitData(data, n, 2, message);
 	mark = static_cast<MessageType>(tmp_mark[0]-'0');
-	printf("%s\n", name);
-	printf("%d\n", mark);
-	printf("%s\n", message);
+	if(mark == LOGIN){
+		tryLogin(fd, name);
+	}
+}
+
+void Server::tryLogin(int fd, const char *name){
+	//string str_name(name);
+	cout << name << endl;
+	//cout << fd << endl;
 }

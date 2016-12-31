@@ -64,7 +64,7 @@ void ClientSocket::merge(const DataStruct &data){
     QString message = data.message;
     QString all = name + "#" + mark + "#" + message;
     //write(all.toUtf8());
-    write(all.toUtf8().data());
+    write(all.toUtf8().data(), 2000);
 }
 
 // 分解数据并且发给主线程

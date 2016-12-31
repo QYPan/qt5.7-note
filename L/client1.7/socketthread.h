@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include <QObject>
-#include <Qpointer>
+#include <QPointer>
 
 class SocketThread : public QThread
 {
