@@ -1,0 +1,33 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>content/ClientList.qml</file>
+        <file>content/ItemDelegate.qml</file>
+        <file>content/LoginPage.qml</file>
+        <file>content/MainTab.qml</file>
+        <file>content/TalkPage.qml</file>
+        <file>content/TextInputLine.qml</file>
+        <file>content/TypeButton.qml</file>
+        <file>images/button_default.png</file>
+        <file>images/button_pressed.png</file>
+        <file>images/LLogo.png</file>
+        <file>images/navigation_next_item.png</file>
+        <file>images/navigation_previous_item.png</file>
+        <file>images/tabs_standard.png</file>
+        <file>images/textinput.png</file>
+        <file>images/toolbar.png</file>
+        <file>images/messageBox.png</file>
+        <file>images/headleft.png</file>
+        <file>images/headright.png</file>
+        <file>content/TypeDialog.qml</file>
+        <file>content/System.qml</file>
+        <file>images/quit.png</file>
+        <file>content/Games.qml</file>
+        <file>content/GobangPage.qml</file>
+        <file>images/checkerboard.png</file>
+        <file>content/gobanglogic.js</file>
+        <file>content/Chessman.qml</file>
+        <file>images/blackchess.png</file>
+        <file>images/whitechess.png</file>
+    </qresource>
+</RCC>
