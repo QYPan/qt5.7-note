@@ -1,7 +1,7 @@
 #include "clientsocket.h"
 #include <QHostAddress>
 #include <QAbstractSocket>
-#include <qDebug>
+#include <QDebug>
 #include <QThread>
 
 ClientSocket::ClientSocket(int socketDescriptor, QObject *parent)

@@ -33,6 +33,7 @@ void ClientSocket::onReadyRead(){
     char char_buffer[2000] = {0};
     read(char_buffer, bytesAvailable());
     QString buffer(char_buffer);
+    qDebug() << "get data: " << buffer;
     resolve(buffer);
 }
 
